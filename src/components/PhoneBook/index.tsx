@@ -14,10 +14,18 @@ interface StateInterface {
 
 export class index extends Component {
   state: StateInterface = {
-    contacts: [
-      { id: 'id-1', name: 'Johnny Silverhand', number: '459-20-77' }
-    ],
+    contacts: [{ id: 'id-1', name: 'Johnny Silverhand', number: '459-20-77' }],
     filter: ''
+  }
+
+  componentDidMount (): void {
+    const contacts = JSON.parse((localStorage.getItem('contacts')) ??
+    '[{"id":"id-1","name":"Johnny Silverhand","number":"459-20-77"}]')
+
+    this.setState({
+      contacts,
+      filter: ''
+    })
   }
 
   onAddContact = (name: string, number: string): void => {
@@ -25,9 +33,12 @@ export class index extends Component {
       alert(`${name} is already in contacts.`)
       return
     }
-    this.setState((prevState: StateInterface) => ({
-      contacts: [...prevState.contacts, { name, number, id: nanoid() }]
-    }))
+
+    this.setState((prevState: StateInterface) => {
+      const newContacts = [...prevState.contacts, { name, number, id: nanoid() }]
+      localStorage.setItem('contacts', JSON.stringify(newContacts))
+      return { contacts: newContacts }
+    })
   }
 
   onFilterChange = (e: ChangeEvent<HTMLInputElement>): void => {
@@ -40,12 +51,14 @@ export class index extends Component {
     const contactID = this.state.contacts.findIndex(
       ({ id }) => id === contactId
     )
-    this.setState((prevState: StateInterface) => ({
-      contacts: [
+    this.setState((prevState: StateInterface) => {
+      const newContacts = [
         ...prevState.contacts.slice(0, contactID),
         ...prevState.contacts.slice(contactID + 1)
       ]
-    }))
+      localStorage.setItem('contacts', JSON.stringify(newContacts))
+      return ({ contacts: newContacts })
+    })
   }
 
   render (): JSX.Element {

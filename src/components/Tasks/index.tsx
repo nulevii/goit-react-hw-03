@@ -1,14 +1,13 @@
 import React from 'react'
 
 import PhoneBook from '../PhoneBook'
-import StatisticsTask from '../StaticsticsTask'
 
 function Task ({ taskNumber }: { taskNumber: number }): JSX.Element | null {
   if (taskNumber === 1) {
-    return <StatisticsTask />
+    return <PhoneBook/>
   }
   if (taskNumber === 2) {
-    return <PhoneBook/>
+    return <div>Task Two</div>
   }
 
   return null
