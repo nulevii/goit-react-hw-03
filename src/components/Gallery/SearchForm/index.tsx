@@ -1,4 +1,4 @@
-import React, { ChangeEventHandler, FormEventHandler, useRef, useState } from 'react'
+import React, { FormEventHandler, useRef } from 'react'
 import style from '../styles.module.css'
 function SearchForm ({ updateQ, q, updateState }:
 { updateQ: (qValue: string) => void, q: string, updateState: () => Promise<void> }): JSX.Element {

@@ -1,4 +1,4 @@
-import React, { Component, ChangeEvent } from 'react'
+import React, { Component } from 'react'
 import getData, { IData } from '../../utilities/getData'
 
 import SearchForm from './SearchForm'
