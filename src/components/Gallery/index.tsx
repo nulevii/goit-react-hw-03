@@ -19,6 +19,7 @@ interface IGallery {
   isModalOpen: boolean
   modalUrl: string
 }
+
 export class Gallery extends Component {
   state: IGallery = {
     page: 1,
@@ -33,17 +34,12 @@ export class Gallery extends Component {
     modalUrl: ''
   }
 
-  updateQ = (e: ChangeEvent<HTMLInputElement>): void => {
-    const q = (e.target as HTMLInputElement).value
-    this.setState({ q })
-  }
-
   updateState = async (): Promise<void> => {
     this.setState({ loading: true })
     const { per_page: perPage, q } = this.state
     const data = await getData({ per_page: perPage, page: 1, q })
       .catch((error) => this.setState({ errorMessage: error.message }))
-    this.setState({ loading: false, hits: data?.hits, total: data?.total, totalHits: data?.totalHits, page: 2 })
+    this.setState({ loading: false, hits: data?.hits, total: data?.total, totalHits: data?.totalHits })
   }
 
   loadMore = async (): Promise<void> => {
@@ -53,16 +49,28 @@ export class Gallery extends Component {
       .catch((error) => this.setState({ errorMessage: error.message }))
     if (data !== undefined) {
       this.setState((prevState: IGallery) => {
-        console.log(prevState)
         return {
           loading: false,
           hits: [...prevState.hits, ...data?.hits],
           total: data?.total,
           totalHits: data?.totalHits,
-          page: page + 1
+          loadMore: false
         }
       })
     }
+  }
+
+  componentDidUpdate (prevProps: Readonly<{}>, prevState: IGallery): void {
+    if (prevState.q !== this.state.q) {
+      void this.updateState()
+    }
+    if (prevState.page !== this.state.page) {
+      void this.loadMore()
+    }
+  }
+
+  updateQ = (qValue: string): void => {
+    this.setState({ q: qValue })
   }
 
   toggleModal = (modalUrl = ''): void => {
@@ -72,13 +80,19 @@ export class Gallery extends Component {
     }))
   }
 
+  changePage = (): void => {
+    this.setState((prevState: IGallery) => ({
+      page: prevState.page + 1
+    }))
+  }
+
   render (): JSX.Element {
     const pages = Math.ceil(this.state.totalHits / this.state.per_page)
     return <>
       {this.state.loading && <Loader />}
       <SearchForm updateQ={this.updateQ} q={this.state.q} updateState={this.updateState} />
       <ImageGallery hits={this.state.hits} toggleModal={this.toggleModal}/>
-      {(this.state.hits.length > 0) && (pages > this.state.page) && <Button loadMore={this.loadMore}/>}
+      {(this.state.hits.length > 0) && (pages > this.state.page) && <Button changePage={this.changePage}/>}
       {(this.state.isModalOpen) && <Modal modalUrl={this.state.modalUrl} toggleModal={this.toggleModal} />}
 
     </>
